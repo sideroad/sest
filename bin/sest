@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+
+const fs = require('fs-extra');
+const opts = require('opts');
+const path = require('path');
+const sha1 = require('sha1');
+const sest = require('../dist/bundle');
+
+const options = [
+  {
+    short: 'f',
+    required: true,
+    value: true,
+    description: 'URL listed file path'
+  },
+  {
+    short: 'd',
+    value: true,
+    description: 'dist directory path ( default: snapshots )'
+  },
+  {
+    short: 't',
+    value: true,
+    description: 'threshold percentage( default: 10 )'
+  }
+];
+
+opts.parse(options);
+const file = path.join(process.cwd(), opts.get('f'));
+
+if (!fs.existsSync(file)) {
+  console.error('File not found', file);
+  process.exit(1);
+}
+
+sest({
+  urls: fs
+    .readFileSync(file, 'utf8')
+    .split(/\r?\n/)
+    .filter(url => url.replace(/^\s+$/)),
+  dist: path.join(process.cwd(), opts.get('d') ? opts.get('d') : 'snapshots', sha1(file)),
+  threashold: opts.get('t') ? opts.get('t') : 10
+});
