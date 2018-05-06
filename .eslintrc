@@ -6,6 +6,8 @@
     "mocha": true
   },
   "rules": {
+    "max-len": ["error", { "code": 80 }],
+    "react/jsx-filename-extension": 0,
     "no-mixed-operators": 0,
     "max-len": [2, 120, 4, {"ignoreUrls": true}],
     "react/no-multi-comp": 0,

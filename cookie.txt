@@ -1,0 +1,2 @@
+a=b; domain=sideroad.secret.jp; path=/; secure=true
+c=d; domain=sideroad.secret.jp; path=/

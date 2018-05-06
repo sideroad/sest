@@ -1,43 +1,111 @@
 #!/usr/bin/env node
 
-const fs = require('fs-extra');
-const opts = require('opts');
-const path = require('path');
-const sha1 = require('sha1');
-const sest = require('../dist/bundle');
+const fs = require("fs-extra");
+const opts = require("opts");
+const path = require("path");
+const sest = require("../dist/bundle");
+const parse = require("csv-parse/lib/sync");
 
 const options = [
   {
-    short: 'f',
+    short: "f",
     required: true,
     value: true,
-    description: 'URL listed file path'
+    description: "URL listed file path"
   },
   {
-    short: 'd',
+    short: "d",
     value: true,
-    description: 'dist directory path ( default: snapshots )'
+    description: "dist directory path (default: snapshots)"
   },
   {
-    short: 't',
+    short: "t",
     value: true,
-    description: 'threshold percentage( default: 10 )'
+    description: "threshold percentage (default: 10)"
+  },
+  {
+    short: "c",
+    value: true,
+    description: "cookie listed file path"
+  },
+  {
+    short: "w",
+    value: true,
+    description: "browser width (default: 1280)"
+  },
+  {
+    short: "h",
+    value: true,
+    description: "browser height (default: 800)"
+  },
+  {
+    short: "p",
+    value: true,
+    description: "proxy server"
   }
 ];
 
 opts.parse(options);
-const file = path.join(process.cwd(), opts.get('f'));
+const file = path.join(process.cwd(), opts.get("f"));
 
 if (!fs.existsSync(file)) {
-  console.error('File not found', file);
+  console.error("File not found", file);
   process.exit(1);
 }
 
-sest({
-  urls: fs
-    .readFileSync(file, 'utf8')
+const lines = parse(fs.readFileSync(file, "utf8"), {
+  columns: ["name", "url", "actions"]
+});
+
+const cookies = [];
+
+if (opts.get("c")) {
+  const cookieFile = fs.readFileSync(
+    path.join(process.cwd(), opts.get("c")),
+    "utf8"
+  );
+  cookieFile
     .split(/\r?\n/)
-    .filter(url => url.replace(/^\s+$/)),
-  dist: path.join(process.cwd(), opts.get('d') ? opts.get('d') : 'snapshots', sha1(file)),
-  threashold: opts.get('t') ? opts.get('t') : 10
+    .filter(line => line)
+    .map(line => {
+      const [whole, name, value, remains] = line.match(/([^=]+)=([^;]+)(.*)/);
+      const options = remains
+        .split(/; /)
+        .filter(set => set)
+        .reduce((memo, set) => {
+          const [key, val] = set.split(/=/);
+          memo[key] =
+            key === "expires"
+              ? new Date(val).getTime()
+              : key === "httpOnly" || key === "secure" ? JSON.parse(val) : val;
+          return memo;
+        }, {});
+      cookies.push(
+        Object.assign(
+          {
+            name,
+            value
+          },
+          options
+        )
+      );
+    });
+}
+
+sest({
+  targets: lines.map(function(item) {
+    return {
+      name: item.name,
+      url: item.url,
+      actions: item.actions.split(",").filter(function(action) {
+        return action;
+      })
+    };
+  }),
+  cookies: cookies,
+  dist: path.join(process.cwd(), opts.get("d") ? opts.get("d") : "snapshots"),
+  threashold: opts.get("t") ? Number(opts.get("t")) : undefined,
+  width: opts.get("w") ? Number(opts.get("w")) : undefined,
+  height: opts.get("h") ? Number(opts.get("h")) : undefined,
+  proxy: opts.get("p")
 });
