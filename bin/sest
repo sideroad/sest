@@ -9,39 +9,52 @@ const parse = require("csv-parse/lib/sync");
 const options = [
   {
     short: "f",
+    long: "file",
     required: true,
     value: true,
     description: "URL listed file path"
   },
   {
     short: "d",
+    long: "dist-dir",
     value: true,
     description: "dist directory path (default: snapshots)"
   },
   {
     short: "t",
+    long: "threshold",
     value: true,
     description: "threshold percentage (default: 10)"
   },
   {
     short: "c",
+    long: "cookie-file",
     value: true,
     description: "cookie listed file path"
   },
   {
     short: "w",
+    long: "width",
     value: true,
     description: "browser width (default: 1280)"
   },
   {
     short: "h",
+    long: "height",
     value: true,
     description: "browser height (default: 800)"
   },
   {
     short: "p",
+    long: "proxy",
     value: true,
     description: "proxy server"
+  },
+  {
+    short: "ua",
+    long: "user-agent",
+    value: true,
+    description: "user agent"
   }
 ];
 
@@ -107,5 +120,6 @@ sest({
   threashold: opts.get("t") ? Number(opts.get("t")) : undefined,
   width: opts.get("w") ? Number(opts.get("w")) : undefined,
   height: opts.get("h") ? Number(opts.get("h")) : undefined,
-  proxy: opts.get("p")
+  proxy: opts.get("p"),
+  userAgent: opts.get("ua")
 });

@@ -44,7 +44,8 @@ module.exports = async ({
   width = 1280,
   height = 800,
   cookies,
-  proxy
+  proxy,
+  userAgent
 }) => {
   const { beforeDir, afterDir, failDir, diffDir } = setupDirs(dist);
   const results = [];
@@ -60,6 +61,9 @@ module.exports = async ({
   };
   if (cookies && cookies.length) {
     await page.setCookie(...cookies);
+  }
+  if (userAgent) {
+    await page.setUserAgent(userAgent);
   }
   await page.setViewport({
     width,
