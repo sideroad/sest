@@ -24,7 +24,7 @@ const options = [
     short: "t",
     long: "threshold",
     value: true,
-    description: "threshold percentage (default: 10)"
+    description: "threshold percentage (default: 0)"
   },
   {
     short: "c",

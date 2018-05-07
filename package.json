@@ -1,6 +1,6 @@
 {
   "name": "sest",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Testing with image snapshot difference",
   "main": "dist/bundle",
   "scripts": {

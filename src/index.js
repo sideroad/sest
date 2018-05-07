@@ -40,7 +40,7 @@ const readFile = file =>
 module.exports = async ({
   targets,
   dist,
-  threshold = 10,
+  threshold = 0,
   width = 1280,
   height = 800,
   cookies,
